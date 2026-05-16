@@ -45,8 +45,8 @@ class PostCreate(BaseModel):
     author:  str
 
 class PostUpdate(BaseModel):
-    title:   Optional[str]
-    content: Optional[str]
+    title:   Optional[str] = None
+    content: Optional[str] = None
 
 class PostResponse(BaseModel):
     id:         int
@@ -98,7 +98,7 @@ def update_post(post_id: int, post: PostUpdate, db: Session = Depends(get_db)):
     db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
-    for k, v in post.dict(exclude_unset=True).items():
+    for k, v in post.model_dump(exclude_unset=True).items():
         setattr(db_post, k, v)
     db_post.updated_at = datetime.utcnow()
     db.commit()
